@@ -1,0 +1,665 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}Home - Django Bookstore{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="bg-gradient-to-r from-primary-600 to-primary-800 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div class="text-center">
+            <h1 class="text-4xl md:text-6xl font-bold mb-6">
+                Welcome to Our Bookstore
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 text-primary-100">
+                Discover thousands of books from your favorite authors
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="#books" class="bg-white text-primary-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                    Browse Books
+                </a>
+                {% if not user.is_authenticated %}
+                <a href="{% url 'web:register' %}" class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary-600 transition-colors">
+                    Join Now
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search Section -->
+<div class="bg-white py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">Find Your Next Read</h2>
+            <p class="text-gray-600">Search through our extensive collection of books</p>
+        </div>
+        
+        <div class="max-w-2xl mx-auto">
+            <div class="relative">
+                <input 
+                    type="text" 
+                    id="search-input"
+                    placeholder="Search books, authors, or categories..."
+                    class="w-full px-4 py-3 pl-12 pr-4 text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                >
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-gray-400"></i>
+                </div>
+                <button 
+                    id="search-btn"
+                    class="absolute inset-y-0 right-0 px-4 bg-primary-600 text-white rounded-r-lg hover:bg-primary-700 transition-colors"
+                >
+                    Search
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Books Section -->
+<div id="books" class="py-16 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-3xl font-bold text-gray-900">Featured Books</h2>
+            <div class="flex gap-2">
+                <button id="filter-btn" class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    <i class="fas fa-filter mr-2"></i>Filter
+                    <span id="filter-count" class="hidden ml-1 bg-primary-600 text-white text-xs rounded-full px-2 py-1">0</span>
+                </button>
+                <button id="clear-all-filters" class="px-4 py-2 bg-red-50 border border-red-200 text-red-700 rounded-lg hover:bg-red-100 transition-colors hidden">
+                    <i class="fas fa-times mr-2"></i>Clear All
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loading" class="text-center py-8 hidden">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+            <p class="mt-2 text-gray-600">Loading books...</p>
+        </div>
+
+        <!-- Books Grid -->
+        <div id="books-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Books will be loaded here via JavaScript -->
+        </div>
+
+        <!-- Pagination -->
+        <div id="pagination" class="mt-12 flex justify-center">
+            <!-- Pagination will be loaded here -->
+        </div>
+    </div>
+</div>
+
+<!-- Filter Modal -->
+<div id="filter-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">Filter Books</h3>
+                <button id="close-filter" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="filter-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                    <select name="category" id="category-filter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
+                        <option value="">All Categories</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Author</label>
+                    <select name="author" id="author-filter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
+                        <option value="">All Authors</option>
+                    </select>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Min Price</label>
+                        <input type="number" name="min_price" id="min-price" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Max Price</label>
+                        <input type="number" name="max_price" id="max-price" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">From Date</label>
+                        <input type="date" name="min_publication_date" id="min-publication-date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">To Date</label>
+                        <input type="date" name="max_publication_date" id="max-publication-date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                </div>
+                
+                <div class="flex items-center">
+                    <input type="checkbox" name="favorites_only" id="favorites-only" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                    <label for="favorites-only" class="ml-2 block text-sm text-gray-900">
+                        Show only my favorites
+                    </label>
+                </div>
+                
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" id="clear-filters" class="px-4 py-2 text-gray-600 hover:text-gray-800">
+                        Clear
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors">
+                        Apply Filters
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Book Detail Modal -->
+<div id="book-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6">
+            <div class="flex justify-between items-start mb-4">
+                <h3 id="book-title" class="text-xl font-semibold"></h3>
+                <button id="close-book" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div id="book-details" class="space-y-4">
+                <!-- Book details will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Global variables
+    let currentPage = 1;
+    let currentFilters = {};
+    let authToken = localStorage.getItem('accessToken');
+
+    // Function to refresh auth token
+    function refreshAuthToken() {
+        authToken = localStorage.getItem('accessToken');
+    }
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+        refreshAuthToken(); // Refresh token on page load
+        loadBooks();
+        loadCategories();
+        loadAuthors();
+        setupEventListeners();
+    });
+
+    // Event listeners
+    function setupEventListeners() {
+        document.getElementById('search-btn').addEventListener('click', handleSearch);
+        document.getElementById('search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') handleSearch();
+        });
+        
+        document.getElementById('filter-btn').addEventListener('click', function() {
+            document.getElementById('filter-modal').classList.remove('hidden');
+        });
+        
+        document.getElementById('close-filter').addEventListener('click', function() {
+            document.getElementById('filter-modal').classList.add('hidden');
+        });
+        
+        document.getElementById('close-book').addEventListener('click', function() {
+            document.getElementById('book-modal').classList.add('hidden');
+        });
+        
+        document.getElementById('filter-form').addEventListener('submit', handleFilter);
+        document.getElementById('clear-filters').addEventListener('click', clearFilters);
+        document.getElementById('clear-all-filters').addEventListener('click', clearAllFilters);
+    }
+
+    // API functions
+    async function apiCall(url, options = {}) {
+        const defaultOptions = {
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        };
+        
+        if (authToken) {
+            defaultOptions.headers['Authorization'] = `Bearer ${authToken}`;
+        }
+        
+        const response = await fetch(url, { ...defaultOptions, ...options });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        return await response.json();
+    }
+
+    // Load books
+    async function loadBooks(page = 1, filters = {}) {
+        try {
+            showLoading(true);
+            
+            // Use search endpoint for advanced filtering, regular endpoint for basic listing
+            let url;
+            const hasFilters = Object.keys(filters).length > 0;
+            
+            if (hasFilters) {
+                url = `/api/books/search/?page=${page}`;
+            } else {
+                url = `/api/books/?page=${page}`;
+            }
+            
+            // Add filters to URL
+            if (filters.search) url += `&search=${encodeURIComponent(filters.search)}`;
+            if (filters.category) url += `&category=${filters.category}`;
+            if (filters.author) url += `&author=${filters.author}`;
+            if (filters.min_price) url += `&min_price=${filters.min_price}`;
+            if (filters.max_price) url += `&max_price=${filters.max_price}`;
+            if (filters.min_publication_date) url += `&min_publication_date=${filters.min_publication_date}`;
+            if (filters.max_publication_date) url += `&max_publication_date=${filters.max_publication_date}`;
+            if (filters.favorites_only) url += `&favorites_only=${filters.favorites_only}`;
+            
+            const data = await apiCall(url);
+            displayBooks(data.results || data);
+            updatePagination(data);
+            
+        } catch (error) {
+            console.error('Error loading books:', error);
+            showError('Failed to load books. Please try again.');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    // Load categories for filter
+    async function loadCategories() {
+        try {
+            const categories = await apiCall('/api/categories/');
+            const select = document.getElementById('category-filter');
+            
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = category.name;
+                select.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Error loading categories:', error);
+        }
+    }
+
+    // Load authors for filter
+    async function loadAuthors() {
+        try {
+            const authors = await apiCall('/api/authors/');
+            const select = document.getElementById('author-filter');
+            
+            authors.forEach(author => {
+                const option = document.createElement('option');
+                option.value = author.id;
+                option.textContent = author.name;
+                select.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Error loading authors:', error);
+        }
+    }
+
+    // Display books
+    function displayBooks(books) {
+        const grid = document.getElementById('books-grid');
+        grid.innerHTML = '';
+        
+        if (books.length === 0) {
+            grid.innerHTML = `
+                <div class="col-span-full text-center py-12">
+                    <i class="fas fa-book text-6xl text-gray-300 mb-4"></i>
+                    <h3 class="text-xl font-semibold text-gray-600 mb-2">No books found</h3>
+                    <p class="text-gray-500">Try adjusting your search or filters</p>
+                </div>
+            `;
+            return;
+        }
+        
+        books.forEach(book => {
+            const bookCard = createBookCard(book);
+            grid.appendChild(bookCard);
+        });
+    }
+
+    // Create enhanced book card with rich data
+    function createBookCard(book) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer transform hover:scale-105';
+        card.onclick = () => showBookDetails(book);
+        
+        // Get cover image (uploaded or URL)
+        const coverImage = book.cover_image_display || book.cover_image || book.cover_image_url;
+        
+        card.innerHTML = `
+            <div class="relative">
+                <div class="aspect-w-3 aspect-h-4 mb-4">
+                    ${coverImage ? 
+                        `<img src="${coverImage}" alt="${book.title}" class="w-full h-56 object-cover rounded-t-lg" 
+                             onerror="this.onerror=null; this.parentNode.innerHTML='<div class=\\'w-full h-56 bg-gray-200 rounded-t-lg flex items-center justify-center\\'><i class=\\'fas fa-book text-4xl text-gray-400\\'></i></div>'">`
+                        :
+                        `<div class="w-full h-56 bg-gray-200 rounded-t-lg flex items-center justify-center">
+                            <i class="fas fa-book text-4xl text-gray-400"></i>
+                        </div>`
+                    }
+                </div>
+                
+                <!-- Favorite button overlay -->
+                <button 
+                    onclick="event.stopPropagation(); toggleFavorite(${book.id})"
+                    class="absolute top-2 right-2 p-2 rounded-full bg-white bg-opacity-90 hover:bg-opacity-100 transition-all duration-200 shadow-md"
+                >
+                    <i class="${book.is_favorited ? 'fas' : 'far'} fa-heart text-red-500"></i>
+                </button>
+            </div>
+            
+            <div class="p-4">
+                <!-- Title and Author -->
+                <h3 class="text-lg font-semibold text-gray-900 mb-1 line-clamp-2">${book.title}</h3>
+                <p class="text-gray-600 mb-2">by ${book.author_name}</p>
+                
+                <!-- Series Info -->
+                ${book.series_name ? 
+                    `<div class="mb-2">
+                        <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                            ${book.series_info || book.series_name}
+                        </span>
+                    </div>` : ''
+                }
+                
+                <!-- Rating Display -->
+                ${book.average_rating ? 
+                    `<div class="flex items-center mb-2">
+                        <div class="flex text-yellow-400 mr-2">
+                            ${generateStarRating(book.average_rating)}
+                        </div>
+                        <span class="text-sm text-gray-600">${book.rating_display || `${book.average_rating}/5.0`}</span>
+                    </div>` : ''
+                }
+                
+                <!-- Genres -->
+                ${book.genres_display && book.genres_display.length > 0 ? 
+                    `<div class="flex flex-wrap gap-1 mb-3">
+                        ${book.genres_display.slice(0, 3).map(genre => 
+                            `<span class="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">${genre}</span>`
+                        ).join('')}
+                    </div>` : ''
+                }
+                
+                <!-- Category -->
+                ${book.category_name ? `<p class="text-sm text-gray-500 mb-2">${book.category_name}</p>` : ''}
+                
+                <!-- Book Details -->
+                <div class="text-xs text-gray-500 mb-3 space-y-1">
+                    ${book.publisher_name ? `<div><i class="fas fa-building mr-1"></i>${book.publisher_name}</div>` : ''}
+                    ${book.book_format ? `<div><i class="fas fa-bookmark mr-1"></i>${formatBookFormat(book.book_format)}</div>` : ''}
+                    ${book.page_count ? `<div><i class="fas fa-file-alt mr-1"></i>${book.page_count} pages</div>` : ''}
+                </div>
+                
+                <!-- Price and Actions -->
+                <div class="flex items-center justify-between">
+                    <span class="text-xl font-bold text-primary-600">$${book.price}</span>
+                    <button 
+                        onclick="event.stopPropagation(); showBookDetails(book)"
+                        class="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition-colors duration-200"
+                    >
+                        Details
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        return card;
+    }
+    
+    // Generate star rating HTML
+    function generateStarRating(rating) {
+        const fullStars = Math.floor(rating);
+        const hasHalfStar = rating % 1 >= 0.5;
+        const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+        
+        let stars = '';
+        for (let i = 0; i < fullStars; i++) {
+            stars += '<i class="fas fa-star"></i>';
+        }
+        if (hasHalfStar) {
+            stars += '<i class="fas fa-star-half-alt"></i>';
+        }
+        for (let i = 0; i < emptyStars; i++) {
+            stars += '<i class="far fa-star"></i>';
+        }
+        return stars;
+    }
+    
+    // Format book format for display
+    function formatBookFormat(format) {
+        const formatMap = {
+            'hardcover': 'Hardcover',
+            'paperback': 'Paperback',
+            'mass_paperback': 'Mass Market Paperback',
+            'audiobook': 'Audiobook',
+            'ebook': 'E-book',
+            'board_book': 'Board Book',
+            'other': 'Other'
+        };
+        return formatMap[format] || format;
+    }
+
+    // Show book details
+    async function showBookDetails(book) {
+        try {
+            const bookDetail = await apiCall(`/api/books/${book.id}/`);
+            
+            document.getElementById('book-title').textContent = bookDetail.title;
+            
+            const details = document.getElementById('book-details');
+            details.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        ${bookDetail.cover_image ? 
+                            `<img src="${bookDetail.cover_image}" alt="${bookDetail.title}" class="w-full rounded-md">` :
+                            `<div class="w-full h-64 bg-gray-200 rounded-md flex items-center justify-center">
+                                <i class="fas fa-book text-6xl text-gray-400"></i>
+                            </div>`
+                        }
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="font-semibold text-gray-900">Author</h4>
+                            <p class="text-gray-600">${bookDetail.author.name}</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-900">Category</h4>
+                            <p class="text-gray-600">${bookDetail.category ? bookDetail.category.name : 'N/A'}</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-900">ISBN</h4>
+                            <p class="text-gray-600">${bookDetail.isbn}</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-900">Publication Date</h4>
+                            <p class="text-gray-600">${new Date(bookDetail.publication_date).toLocaleDateString()}</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-900">Pages</h4>
+                            <p class="text-gray-600">${bookDetail.page_count || 'N/A'}</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-900">Price</h4>
+                            <p class="text-2xl font-bold text-primary-600">$${bookDetail.price}</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-900">Description</h4>
+                            <p class="text-gray-600">${bookDetail.description || 'No description available.'}</p>
+                        </div>
+                        <div class="pt-4">
+                            <button onclick="toggleFavorite(${bookDetail.id})" class="w-full bg-primary-600 text-white py-2 px-4 rounded-md hover:bg-primary-700 transition-colors">
+                                <i class="fas fa-heart mr-2"></i>
+                                ${bookDetail.is_favorited ? 'Remove from Favorites' : 'Add to Favorites'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('book-modal').classList.remove('hidden');
+        } catch (error) {
+            console.error('Error loading book details:', error);
+            showError('Failed to load book details.');
+        }
+    }
+
+    // Toggle favorite
+    async function toggleFavorite(bookId) {
+        refreshAuthToken(); // Refresh token before checking
+        if (!authToken) {
+            showError('Please login to add favorites.');
+            return;
+        }
+        
+        try {
+            const response = await apiCall('/api/favorites/toggle/', {
+                method: 'POST',
+                body: JSON.stringify({ book_id: bookId })
+            });
+            
+            // Reload books to update favorite status
+            loadBooks(currentPage, currentFilters);
+            
+            if (response.is_favorited) {
+                showSuccess('Book added to favorites!');
+            } else {
+                showSuccess('Book removed from favorites!');
+            }
+        } catch (error) {
+            console.error('Error toggling favorite:', error);
+            showError('Failed to update favorites.');
+        }
+    }
+
+    // Handle search
+    function handleSearch() {
+        const searchTerm = document.getElementById('search-input').value.trim();
+        currentFilters = { ...currentFilters, search: searchTerm };
+        currentPage = 1;
+        loadBooks(currentPage, currentFilters);
+        updateFilterUI();
+    }
+
+    // Handle filter
+    function handleFilter(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(e.target);
+        currentFilters = {
+            category: formData.get('category') || '',
+            author: formData.get('author') || '',
+            min_price: formData.get('min_price') || '',
+            max_price: formData.get('max_price') || '',
+            min_publication_date: formData.get('min_publication_date') || '',
+            max_publication_date: formData.get('max_publication_date') || '',
+            favorites_only: formData.get('favorites_only') ? 'true' : ''
+        };
+        
+        // Remove empty filters
+        Object.keys(currentFilters).forEach(key => {
+            if (!currentFilters[key]) delete currentFilters[key];
+        });
+        
+        currentPage = 1;
+        loadBooks(currentPage, currentFilters);
+        document.getElementById('filter-modal').classList.add('hidden');
+        updateFilterUI();
+    }
+
+    // Clear filters
+    function clearFilters() {
+        document.getElementById('filter-form').reset();
+        currentFilters = {};
+        currentPage = 1;
+        loadBooks(currentPage, currentFilters);
+        document.getElementById('filter-modal').classList.add('hidden');
+        updateFilterUI();
+    }
+
+    // Clear all filters (including search)
+    function clearAllFilters() {
+        document.getElementById('filter-form').reset();
+        document.getElementById('search-input').value = '';
+        currentFilters = {};
+        currentPage = 1;
+        loadBooks(currentPage, currentFilters);
+        updateFilterUI();
+    }
+
+    // Update filter UI indicators
+    function updateFilterUI() {
+        const filterCount = Object.keys(currentFilters).length;
+        const filterCountElement = document.getElementById('filter-count');
+        const clearAllButton = document.getElementById('clear-all-filters');
+        
+        if (filterCount > 0) {
+            filterCountElement.textContent = filterCount;
+            filterCountElement.classList.remove('hidden');
+            clearAllButton.classList.remove('hidden');
+        } else {
+            filterCountElement.classList.add('hidden');
+            clearAllButton.classList.add('hidden');
+        }
+    }
+
+    // Update pagination
+    function updatePagination(data) {
+        const pagination = document.getElementById('pagination');
+        
+        if (!data.next && !data.previous) {
+            pagination.innerHTML = '';
+            return;
+        }
+        
+        let paginationHTML = '<nav class="flex justify-center space-x-2">';
+        
+        if (data.previous) {
+            paginationHTML += `<button onclick="loadBooks(${currentPage - 1}, currentFilters)" class="px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50">Previous</button>`;
+        }
+        
+        if (data.next) {
+            paginationHTML += `<button onclick="loadBooks(${currentPage + 1}, currentFilters)" class="px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50">Next</button>`;
+        }
+        
+        paginationHTML += '</nav>';
+        pagination.innerHTML = paginationHTML;
+    }
+
+    // Utility functions
+    function showLoading(show) {
+        document.getElementById('loading').classList.toggle('hidden', !show);
+    }
+
+    function showError(message) {
+        // You can implement a toast notification system here
+        alert(message);
+    }
+
+    function showSuccess(message) {
+        // You can implement a toast notification system here
+        alert(message);
+    }
+</script>
+{% endblock %}

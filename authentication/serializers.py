@@ -6,7 +6,7 @@ from rest_framework import serializers
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
-    def get_token(cls, user=settings.AUTH_USER_MODEL):
+    def get_token(cls, user):
         token = super().get_token(user)
 
         # Add custom claims
@@ -18,21 +18,21 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         return token
 
-    def validate_empty_values(self, data):
-        validated_data = super().validate_empty_values(data)
+    def validate(self, attrs):
+        data = super().validate(attrs)
         refresh = self.get_token(self.user)
 
-        return {
-            "refresh": str(refresh),
-            "access": str(refresh.access_token),
-            "user": {
-                "username": self.user.username,
-                "email": self.user.email,
-                "first_name": self.user.first_name,
-                "last_name": self.user.last_name,
-                "phone_number": self.user.phone_number,
-            },
+        data["refresh"] = str(refresh)
+        data["access"] = str(refresh.access_token)
+        data["user"] = {
+            "username": self.user.username,
+            "email": self.user.email,
+            "first_name": self.user.first_name,
+            "last_name": self.user.last_name,
+            "phone_number": self.user.phone_number,
         }
+
+        return data
 
 
 class UserSerializer(serializers.ModelSerializer):
