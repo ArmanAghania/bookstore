@@ -32,7 +32,7 @@ The application is containerized using Docker and Docker Compose with the follow
 cd bookstore
 
 # Start all services
-docker compose up -d
+docker compose up -d --build
 
 # View logs
 docker compose logs -f
@@ -152,7 +152,7 @@ nginx:
 
 ```bash
 # Start development environment
-docker compose up -d
+docker compose up -d --build
 
 # View application logs
 docker compose logs -f web
@@ -191,7 +191,7 @@ docker compose exec -T db psql -U postgres bookstore < backup.sql
 
 # Reset database (WARNING: This will delete all data)
 docker compose down -v
-docker compose up -d
+docker compose up -d --build
 ```
 
 ## 📊 Monitoring
@@ -261,8 +261,7 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
 # Update application
 git pull
-docker compose build
-docker compose up -d
+docker compose up -d --build
 
 # Database migrations
 docker compose exec web python manage.py migrate
@@ -351,7 +350,7 @@ docker compose down -v
 docker compose down --rmi all
 
 # Start fresh
-docker compose up -d
+docker compose up -d --build
 ```
 
 ## 📈 Performance
