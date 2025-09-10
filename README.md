@@ -45,6 +45,9 @@ See [Development Setup Guide](docs/development.md) for detailed instructions.
 - **[Development Setup](docs/development.md)** - Local development environment
 - **[Deployment Guide](docs/deployment.md)** - Production deployment instructions
 - **[Features Overview](docs/features.md)** - Detailed feature descriptions
+- **[Database Schema](docs/database.md)** - Database structure and relationships
+- **[ER Diagram](docs/er-diagram.md)** - Visual database relationship diagram
+- **[Visual ER Diagram](mermaid-diagram.png)** - High-resolution database schema image
 
 ## 🏗️ Architecture
 
