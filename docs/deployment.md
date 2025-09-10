@@ -244,7 +244,7 @@ sudo chmod +x /usr/local/bin/docker-compose
 #### 2. Application Deployment
 ```bash
 # Clone repository
-git clone <repository-url>
+git clone https://github.com/ArmanAghania/bookstore.git
 cd bookstore
 
 # Set up environment
@@ -318,7 +318,7 @@ sudo chown bookstore:bookstore /opt/bookstore
 
 # Clone and setup application
 cd /opt/bookstore
-sudo -u bookstore git clone <repository-url> .
+sudo -u bookstore git clone https://github.com/ArmanAghania/bookstore.git .
 sudo -u bookstore python3.11 -m venv venv
 sudo -u bookstore venv/bin/pip install -r requirements.txt
 ```

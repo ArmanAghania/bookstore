@@ -21,7 +21,7 @@ Django Bookstore is a full-featured web application for managing a book collecti
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/ArmanAghania/bookstore.git
    cd bookstore
    ```
 
