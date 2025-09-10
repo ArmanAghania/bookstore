@@ -27,7 +27,7 @@ BOOK_COUNT=$(python manage.py shell -c "from books.models import Book; print(Boo
 if [ "$BOOK_COUNT" -eq 0 ] 2>/dev/null; then
     echo "No books found in database. Importing books from CSV..."
     if [ -f "books_1.Best_Books_Ever.csv" ]; then
-        python manage.py import_books books_1.Best_Books_Ever.csv --batch-size 50
+        python manage.py import_books books_1.Best_Books_Ever.csv --batch-size 50 --limit 1000
         echo "Books imported successfully"
     else
         echo "CSV file not found, skipping book import"
