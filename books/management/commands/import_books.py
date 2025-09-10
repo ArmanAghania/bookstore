@@ -261,6 +261,8 @@ class Command(BaseCommand):
             if genres_str:
                 # Take the first genre
                 first_genre = genres_str.split("',")[0].strip("'\"")
+                # Remove any leading/trailing quotes that might be left
+                first_genre = first_genre.strip("'\"")
                 if first_genre:
                     category, created = Category.objects.get_or_create(
                         name=first_genre[:50],  # Limit to model max_length
@@ -497,9 +499,14 @@ class Command(BaseCommand):
                 genres_list = [g.strip("'\"") for g in genres_str.split("',")]
                 for genre_name in genres_list[:5]:  # Limit to first 5 genres
                     if genre_name:
+                        # Remove any remaining quotes and clean up
+                        genre_name = genre_name.strip("'\"")
                         genre_name = genre_name.strip()[:50]
-                        genre, created = Genre.objects.get_or_create(name=genre_name)
-                        book.genres.add(genre)
+                        if genre_name:  # Check again after cleaning
+                            genre, created = Genre.objects.get_or_create(
+                                name=genre_name
+                            )
+                            book.genres.add(genre)
         except Exception:
             pass
 

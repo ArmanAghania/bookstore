@@ -1,6 +1,17 @@
 from rest_framework import serializers
 from django.db.models import Q
-from .models import Category, Author, Book, Favorite, Genre, Character, Award, Publisher, Language, Series
+from .models import (
+    Category,
+    Author,
+    Book,
+    Favorite,
+    Genre,
+    Character,
+    Award,
+    Publisher,
+    Language,
+    Series,
+)
 from django.conf import settings
 
 
@@ -248,7 +259,7 @@ class BookDetailSerializer(serializers.ModelSerializer):
 
 class BookCreateUpdateSerializer(serializers.ModelSerializer):
     """Serializer for creating and updating books with enhanced fields"""
-    
+
     genres = serializers.PrimaryKeyRelatedField(
         many=True, queryset=Genre.objects.all(), required=False
     )
@@ -340,15 +351,22 @@ class BookSearchSerializer(serializers.Serializer):
         required=False, help_text="Filter by category ID"
     )
     author = serializers.IntegerField(required=False, help_text="Filter by author ID")
-    publisher = serializers.IntegerField(required=False, help_text="Filter by publisher ID")
-    language = serializers.IntegerField(required=False, help_text="Filter by language ID")
+    publisher = serializers.IntegerField(
+        required=False, help_text="Filter by publisher ID"
+    )
+    language = serializers.IntegerField(
+        required=False, help_text="Filter by language ID"
+    )
     series = serializers.IntegerField(required=False, help_text="Filter by series ID")
     genres = serializers.ListField(
-        child=serializers.IntegerField(), required=False, help_text="Filter by genre IDs"
+        child=serializers.IntegerField(),
+        required=False,
+        help_text="Filter by genre IDs",
     )
     book_format = serializers.ChoiceField(
         choices=[choice[0] for choice in Book.FORMAT_CHOICES],
-        required=False, help_text="Filter by book format"
+        required=False,
+        help_text="Filter by book format",
     )
     min_price = serializers.DecimalField(
         max_digits=10, decimal_places=2, required=False, help_text="Minimum price"
@@ -357,10 +375,16 @@ class BookSearchSerializer(serializers.Serializer):
         max_digits=10, decimal_places=2, required=False, help_text="Maximum price"
     )
     min_rating = serializers.DecimalField(
-        max_digits=3, decimal_places=2, required=False, help_text="Minimum average rating"
+        max_digits=3,
+        decimal_places=2,
+        required=False,
+        help_text="Minimum average rating",
     )
     max_rating = serializers.DecimalField(
-        max_digits=3, decimal_places=2, required=False, help_text="Maximum average rating"
+        max_digits=3,
+        decimal_places=2,
+        required=False,
+        help_text="Maximum average rating",
     )
     min_publication_date = serializers.DateField(
         required=False, help_text="Minimum publication date"
@@ -376,14 +400,21 @@ class BookSearchSerializer(serializers.Serializer):
     )
     ordering = serializers.ChoiceField(
         choices=[
-            "title", "-title",
-            "price", "-price", 
-            "publication_date", "-publication_date",
-            "average_rating", "-average_rating",
-            "num_ratings", "-num_ratings",
-            "created_at", "-created_at"
+            "title",
+            "-title",
+            "price",
+            "-price",
+            "publication_date",
+            "-publication_date",
+            "average_rating",
+            "-average_rating",
+            "num_ratings",
+            "-num_ratings",
+            "created_at",
+            "-created_at",
         ],
-        required=False, help_text="Order results by field"
+        required=False,
+        help_text="Order results by field",
     )
 
 

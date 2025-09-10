@@ -10,7 +10,7 @@ class BookstoreAPI {
     setAuthToken(token) {
         this.authToken = token;
         localStorage.setItem('accessToken', token);
-        // Also set as cookie for middleware
+        // Also set as cookie for middleware (60 minutes = 3600 seconds)
         document.cookie = `access_token=${token}; path=/; max-age=3600; SameSite=Lax`;
     }
 
@@ -349,6 +349,259 @@ class BookstoreAPI {
             body: JSON.stringify({ book_id: bookId })
         });
     }
+
+    // Enhanced search method with all new filters
+    async searchBooksEnhanced(params) {
+        const queryString = new URLSearchParams(params).toString();
+        const endpoint = queryString ? `/books/search/?${queryString}` : '/books/search/';
+        return await this.request(endpoint);
+    }
+
+    // Genre methods
+    async getGenres() {
+        return await this.request('/genres/');
+    }
+
+    async getGenre(id) {
+        return await this.request(`/genres/${id}/`);
+    }
+
+    async createGenre(genreData) {
+        return await this.request('/genres/', {
+            method: 'POST',
+            body: JSON.stringify(genreData)
+        });
+    }
+
+    async updateGenre(id, genreData) {
+        return await this.request(`/genres/${id}/`, {
+            method: 'PATCH',
+            body: JSON.stringify(genreData)
+        });
+    }
+
+    async deleteGenre(id) {
+        return await this.request(`/genres/${id}/`, {
+            method: 'DELETE'
+        });
+    }
+
+    // Character methods
+    async getCharacters() {
+        return await this.request('/characters/');
+    }
+
+    async getCharacter(id) {
+        return await this.request(`/characters/${id}/`);
+    }
+
+    async createCharacter(characterData) {
+        return await this.request('/characters/', {
+            method: 'POST',
+            body: JSON.stringify(characterData)
+        });
+    }
+
+    async updateCharacter(id, characterData) {
+        return await this.request(`/characters/${id}/`, {
+            method: 'PATCH',
+            body: JSON.stringify(characterData)
+        });
+    }
+
+    async deleteCharacter(id) {
+        return await this.request(`/characters/${id}/`, {
+            method: 'DELETE'
+        });
+    }
+
+    // Award methods
+    async getAwards() {
+        return await this.request('/awards/');
+    }
+
+    async getAward(id) {
+        return await this.request(`/awards/${id}/`);
+    }
+
+    async createAward(awardData) {
+        return await this.request('/awards/', {
+            method: 'POST',
+            body: JSON.stringify(awardData)
+        });
+    }
+
+    async updateAward(id, awardData) {
+        return await this.request(`/awards/${id}/`, {
+            method: 'PATCH',
+            body: JSON.stringify(awardData)
+        });
+    }
+
+    async deleteAward(id) {
+        return await this.request(`/awards/${id}/`, {
+            method: 'DELETE'
+        });
+    }
+
+    // Publisher methods
+    async getPublishers() {
+        return await this.request('/publishers/');
+    }
+
+    async getPublisher(id) {
+        return await this.request(`/publishers/${id}/`);
+    }
+
+    async createPublisher(publisherData) {
+        return await this.request('/publishers/', {
+            method: 'POST',
+            body: JSON.stringify(publisherData)
+        });
+    }
+
+    async updatePublisher(id, publisherData) {
+        return await this.request(`/publishers/${id}/`, {
+            method: 'PATCH',
+            body: JSON.stringify(publisherData)
+        });
+    }
+
+    async deletePublisher(id) {
+        return await this.request(`/publishers/${id}/`, {
+            method: 'DELETE'
+        });
+    }
+
+    // Language methods
+    async getLanguages() {
+        return await this.request('/languages/');
+    }
+
+    async getLanguage(id) {
+        return await this.request(`/languages/${id}/`);
+    }
+
+    async createLanguage(languageData) {
+        return await this.request('/languages/', {
+            method: 'POST',
+            body: JSON.stringify(languageData)
+        });
+    }
+
+    async updateLanguage(id, languageData) {
+        return await this.request(`/languages/${id}/`, {
+            method: 'PATCH',
+            body: JSON.stringify(languageData)
+        });
+    }
+
+    async deleteLanguage(id) {
+        return await this.request(`/languages/${id}/`, {
+            method: 'DELETE'
+        });
+    }
+
+    // Series methods
+    async getSeries() {
+        return await this.request('/series/');
+    }
+
+    async getSeriesById(id) {
+        return await this.request(`/series/${id}/`);
+    }
+
+    async createSeries(seriesData) {
+        return await this.request('/series/', {
+            method: 'POST',
+            body: JSON.stringify(seriesData)
+        });
+    }
+
+    async updateSeries(id, seriesData) {
+        return await this.request(`/series/${id}/`, {
+            method: 'PATCH',
+            body: JSON.stringify(seriesData)
+        });
+    }
+
+    async deleteSeries(id) {
+        return await this.request(`/series/${id}/`, {
+            method: 'DELETE'
+        });
+    }
+
+    // Utility methods for dropdowns and selections
+    async getAllDropdownData() {
+        try {
+            const [categories, authors, publishers, languages, series, genres] = await Promise.all([
+                this.getCategories(),
+                this.getAuthors(),
+                this.getPublishers(),
+                this.getLanguages(),
+                this.getSeries(),
+                this.getGenres()
+            ]);
+
+            return {
+                categories: categories.results || categories,
+                authors: authors.results || authors,
+                publishers: publishers.results || publishers,
+                languages: languages.results || languages,
+                series: series.results || series,
+                genres: genres.results || genres
+            };
+        } catch (error) {
+            console.error('Error loading dropdown data:', error);
+            throw error;
+        }
+    }
+
+    // Enhanced book search with all new parameters
+    async searchBooksWithFilters(filters = {}) {
+        const params = new URLSearchParams();
+        
+        // Text search
+        if (filters.search) params.append('search', filters.search);
+        
+        // Basic filters
+        if (filters.category) params.append('category', filters.category);
+        if (filters.author) params.append('author', filters.author);
+        if (filters.publisher) params.append('publisher', filters.publisher);
+        if (filters.language) params.append('language', filters.language);
+        if (filters.series) params.append('series', filters.series);
+        if (filters.book_format) params.append('book_format', filters.book_format);
+        
+        // Genre filter (multiple)
+        if (filters.genres && Array.isArray(filters.genres)) {
+            filters.genres.forEach(genre => params.append('genres', genre));
+        }
+        
+        // Price range
+        if (filters.min_price) params.append('min_price', filters.min_price);
+        if (filters.max_price) params.append('max_price', filters.max_price);
+        
+        // Rating range
+        if (filters.min_rating) params.append('min_rating', filters.min_rating);
+        if (filters.max_rating) params.append('max_rating', filters.max_rating);
+        
+        // Date range
+        if (filters.min_publication_date) params.append('min_publication_date', filters.min_publication_date);
+        if (filters.max_publication_date) params.append('max_publication_date', filters.max_publication_date);
+        
+        // Boolean filters
+        if (filters.favorites_only) params.append('favorites_only', filters.favorites_only);
+        if (filters.has_cover_image) params.append('has_cover_image', filters.has_cover_image);
+        
+        // Ordering
+        if (filters.ordering) params.append('ordering', filters.ordering);
+        
+        // Pagination
+        if (filters.page) params.append('page', filters.page);
+        
+        const endpoint = `/books/search/?${params.toString()}`;
+        return await this.request(endpoint);
+    }
 }
 
 // Create global API instance
@@ -398,7 +651,7 @@ window.showWarning = function(message) {
 
 // Check authentication status on page load
 document.addEventListener('DOMContentLoaded', function() {
-    const authToken = localStorage.getItem('authToken');
+    const authToken = localStorage.getItem('accessToken'); // Fixed: was 'authToken'
     if (authToken) {
         // Verify token is still valid
         api.getCurrentUser().catch(() => {

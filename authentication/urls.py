@@ -10,10 +10,10 @@ urlpatterns = [
         "user/",
         UserViewset.as_view(
             {
-                "get": "retrieve",
-                "post": "create",
-                "put": "update",
-                "patch": "partial_update",
+                "get": "me",
+                "post": "me",
+                "put": "me",
+                "patch": "me",
             }
         ),
         name="user",

@@ -55,12 +55,17 @@
             </div>
         </div>
     </div>
+    
+    <!-- Pagination -->
+    <div id="pagination" class="mt-8 flex justify-center">
+        <!-- Pagination will be loaded here -->
+    </div>
 </div>
 
 <!-- Add/Edit Book Modal -->
 <div id="book-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
-    <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6">
+    <div class="flex items-center justify-center min-h-screen p-4 overflow-y-auto">
+        <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full p-6 my-8 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
                 <h3 id="modal-title" class="text-lg font-semibold">Add New Book</h3>
                 <button id="close-modal" class="text-gray-400 hover:text-gray-600">
@@ -68,7 +73,7 @@
                 </button>
             </div>
             
-            <form id="book-form" class="space-y-4">
+            <form id="book-form" class="space-y-6 max-h-[70vh] overflow-y-auto pr-2">
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Title *</label>
@@ -131,6 +136,100 @@
                         </select>
                     </div>
                 </div>
+
+                <!-- Enhanced Publishing Information -->
+                <div class="border-t pt-6">
+                    <h4 class="text-lg font-semibold text-gray-900 mb-4">Publishing Information</h4>
+                    <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Publisher</label>
+                        <select id="book-publisher" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
+                            <option value="">Select Publisher</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Language</label>
+                        <select id="book-language" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
+                            <option value="">Select Language</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Series Information -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Series</label>
+                        <select id="book-series" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
+                            <option value="">Select Series</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Series Info</label>
+                        <input type="text" id="book-series-info" placeholder="e.g., Book #1, Volume 2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                </div>
+
+                <!-- Genres -->
+                <div class="border-t pt-6">
+                    <h4 class="text-lg font-semibold text-gray-900 mb-4">Genres & Categories</h4>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Genres</label>
+                    <div id="genres-container" class="flex flex-wrap gap-2 mb-2 p-3 border border-gray-300 rounded-md min-h-[100px]">
+                        <div class="text-gray-500 text-sm">No genres selected</div>
+                    </div>
+                    <select id="genre-selector" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
+                        <option value="">Add Genre</option>
+                    </select>
+                </div>
+
+                <!-- Physical Properties -->
+                <div class="border-t pt-6">
+                    <h4 class="text-lg font-semibold text-gray-900 mb-4">Physical Properties</h4>
+                    <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Book Format</label>
+                        <select id="book-format" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
+                            <option value="">Select Format</option>
+                            <option value="hardcover">Hardcover</option>
+                            <option value="paperback">Paperback</option>
+                            <option value="mass_paperback">Mass Market Paperback</option>
+                            <option value="audiobook">Audiobook</option>
+                            <option value="ebook">E-book</option>
+                            <option value="board_book">Board Book</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Edition</label>
+                        <input type="text" id="book-edition" placeholder="e.g., First Edition" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                </div>
+
+                <!-- Dates -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Publication Date *</label>
+                        <input type="date" id="book-publication-date" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">First Publication Date</label>
+                        <input type="date" id="book-first-publication-date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                </div>
+
+                <!-- External Data -->
+                <div class="border-t pt-6">
+                    <h4 class="text-lg font-semibold text-gray-900 mb-4">External Data & Pricing</h4>
+                    <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Cover Image URL</label>
+                        <input type="url" id="book-cover-url" placeholder="https://example.com/cover.jpg" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Goodreads ID</label>
+                        <input type="text" id="book-goodreads-id" placeholder="External book ID" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                </div>
                 
                 <div class="grid grid-cols-3 gap-4">
                     <div>
@@ -138,13 +237,20 @@
                         <input type="number" id="book-price" step="0.01" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Publication Date *</label>
-                        <input type="date" id="book-publication-date" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
-                    </div>
-                    <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Page Count</label>
                         <input type="number" id="book-page-count" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
                     </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Average Rating</label>
+                        <input type="number" id="book-average-rating" step="0.01" min="0" max="5" placeholder="0.00 - 5.00" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                </div>
+
+                <!-- Settings/Locations -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Story Settings/Locations</label>
+                    <input type="text" id="book-settings" placeholder="e.g., New York, London, Middle Earth" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
+                    <p class="text-xs text-gray-500 mt-1">Separate multiple locations with commas</p>
                 </div>
                 
                 <div class="flex justify-end space-x-3 pt-4">
@@ -166,12 +272,16 @@
     let currentBookId = null;
     let authors = [];
     let categories = [];
+    let publishers = [];
+    let languages = [];
+    let series = [];
+    let genres = [];
+    let selectedGenres = [];
 
     // Initialize page
     document.addEventListener('DOMContentLoaded', function() {
         loadBooks();
-        loadAuthors();
-        loadCategories();
+        loadAllDropdownData();
         setupEventListeners();
     });
 
@@ -184,34 +294,64 @@
         // Image upload handlers
         document.getElementById('book-cover-image').addEventListener('change', handleImageUpload);
         document.getElementById('remove-image').addEventListener('click', removeImage);
+        
+        // Genre selector handler
+        document.getElementById('genre-selector').addEventListener('change', handleGenreSelection);
+        
+        // Click outside to close modal
+        document.getElementById('book-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeBookModal();
+            }
+        });
+        
+        // Escape key to close modal
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeBookModal();
+            }
+        });
     }
 
-    async function loadBooks() {
+    // Global variables for pagination
+    let currentPage = 1;
+
+    async function loadBooks(page = 1) {
         try {
-            const books = await api.getBooks();
+            currentPage = page;
+            const books = await api.getBooks({ page: page });
             displayBooks(books.results || books);
+            updatePagination(books);
         } catch (error) {
             console.error('Error loading books:', error);
             showError('Failed to load books.');
         }
     }
 
-    async function loadAuthors() {
+    async function loadAllDropdownData() {
         try {
-            authors = await api.getAuthors();
-            populateAuthorSelect();
+            const data = await api.getAllDropdownData();
+            authors = data.authors;
+            categories = data.categories;
+            publishers = data.publishers;
+            languages = data.languages;
+            series = data.series;
+            genres = data.genres;
+            
+            populateAllSelects();
         } catch (error) {
-            console.error('Error loading authors:', error);
+            console.error('Error loading dropdown data:', error);
+            showError('Failed to load form data.');
         }
     }
 
-    async function loadCategories() {
-        try {
-            categories = await api.getCategories();
-            populateCategorySelect();
-        } catch (error) {
-            console.error('Error loading categories:', error);
-        }
+    function populateAllSelects() {
+        populateAuthorSelect();
+        populateCategorySelect();
+        populatePublisherSelect();
+        populateLanguageSelect();
+        populateSeriesSelect();
+        populateGenreSelect();
     }
 
     function populateAuthorSelect() {
@@ -234,6 +374,88 @@
             option.textContent = category.name;
             select.appendChild(option);
         });
+    }
+
+    function populatePublisherSelect() {
+        const select = document.getElementById('book-publisher');
+        select.innerHTML = '<option value="">Select Publisher</option>';
+        publishers.forEach(publisher => {
+            const option = document.createElement('option');
+            option.value = publisher.id;
+            option.textContent = publisher.name;
+            select.appendChild(option);
+        });
+    }
+
+    function populateLanguageSelect() {
+        const select = document.getElementById('book-language');
+        select.innerHTML = '<option value="">Select Language</option>';
+        languages.forEach(language => {
+            const option = document.createElement('option');
+            option.value = language.id;
+            option.textContent = language.name;
+            select.appendChild(option);
+        });
+    }
+
+    function populateSeriesSelect() {
+        const select = document.getElementById('book-series');
+        select.innerHTML = '<option value="">Select Series</option>';
+        series.forEach(s => {
+            const option = document.createElement('option');
+            option.value = s.id;
+            option.textContent = s.name;
+            select.appendChild(option);
+        });
+    }
+
+    function populateGenreSelect() {
+        const select = document.getElementById('genre-selector');
+        select.innerHTML = '<option value="">Add Genre</option>';
+        genres.forEach(genre => {
+            const option = document.createElement('option');
+            option.value = genre.id;
+            option.textContent = genre.name;
+            select.appendChild(option);
+        });
+    }
+
+    // Genre management functions
+    function handleGenreSelection(event) {
+        const genreId = parseInt(event.target.value);
+        if (!genreId) return;
+
+        const genre = genres.find(g => g.id === genreId);
+        if (genre && !selectedGenres.find(g => g.id === genreId)) {
+            selectedGenres.push(genre);
+            updateGenresDisplay();
+        }
+        
+        // Reset selector
+        event.target.value = '';
+    }
+
+    function removeGenre(genreId) {
+        selectedGenres = selectedGenres.filter(g => g.id !== genreId);
+        updateGenresDisplay();
+    }
+
+    function updateGenresDisplay() {
+        const container = document.getElementById('genres-container');
+        
+        if (selectedGenres.length === 0) {
+            container.innerHTML = '<div class="text-gray-500 text-sm">No genres selected</div>';
+            return;
+        }
+
+        container.innerHTML = selectedGenres.map(genre => `
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                ${genre.name}
+                <button type="button" onclick="removeGenre(${genre.id})" class="ml-2 text-blue-600 hover:text-blue-800">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </span>
+        `).join('');
     }
 
     function displayBooks(books) {
@@ -297,6 +519,7 @@
             title.textContent = 'Add New Book';
             document.getElementById('book-form').reset();
             clearImageForm();
+            clearEnhancedFields();
         }
         
         modal.classList.remove('hidden');
@@ -306,12 +529,36 @@
         document.getElementById('book-modal').classList.add('hidden');
         currentBookId = null;
         clearImageForm();
+        clearEnhancedFields();
+    }
+
+    function clearEnhancedFields() {
+        // Clear all enhanced form fields
+        selectedGenres = [];
+        updateGenresDisplay();
+        
+        // Reset selects to default
+        document.getElementById('book-publisher').value = '';
+        document.getElementById('book-language').value = '';
+        document.getElementById('book-series').value = '';
+        document.getElementById('book-format').value = '';
+        document.getElementById('genre-selector').value = '';
+        
+        // Clear text inputs
+        document.getElementById('book-series-info').value = '';
+        document.getElementById('book-edition').value = '';
+        document.getElementById('book-first-publication-date').value = '';
+        document.getElementById('book-cover-url').value = '';
+        document.getElementById('book-goodreads-id').value = '';
+        document.getElementById('book-average-rating').value = '';
+        document.getElementById('book-settings').value = '';
     }
 
     async function loadBookData(bookId) {
         try {
             const book = await api.getBook(bookId);
             
+            // Basic fields
             document.getElementById('book-title').value = book.title;
             document.getElementById('book-isbn').value = book.isbn;
             document.getElementById('book-description').value = book.description || '';
@@ -321,10 +568,27 @@
             document.getElementById('book-publication-date').value = book.publication_date;
             document.getElementById('book-page-count').value = book.page_count || '';
             
+            // Enhanced fields
+            document.getElementById('book-publisher').value = book.publisher ? book.publisher.id : '';
+            document.getElementById('book-language').value = book.language ? book.language.id : '';
+            document.getElementById('book-series').value = book.series ? book.series.id : '';
+            document.getElementById('book-series-info').value = book.series_info || '';
+            document.getElementById('book-format').value = book.book_format || '';
+            document.getElementById('book-edition').value = book.edition || '';
+            document.getElementById('book-first-publication-date').value = book.first_publication_date || '';
+            document.getElementById('book-cover-url').value = book.cover_image_url || '';
+            document.getElementById('book-goodreads-id').value = book.goodreads_id || '';
+            document.getElementById('book-average-rating').value = book.average_rating || '';
+            document.getElementById('book-settings').value = book.settings || '';
+            
+            // Load genres
+            selectedGenres = book.genres || [];
+            updateGenresDisplay();
+            
             // Show current image if exists
             clearImageForm();
-            if (book.cover_image) {
-                showCurrentImage(book.cover_image);
+            if (book.cover_image || book.cover_image_url) {
+                showCurrentImage(book.cover_image || book.cover_image_url);
             }
         } catch (error) {
             console.error('Error loading book data:', error);
@@ -337,23 +601,60 @@
         
         // Create FormData for file upload support
         const formData = new FormData();
+        
+        // Basic information
         formData.append('title', document.getElementById('book-title').value);
         formData.append('isbn', document.getElementById('book-isbn').value);
         formData.append('description', document.getElementById('book-description').value);
         formData.append('author', document.getElementById('book-author').value);
-        
-        const categoryValue = document.getElementById('book-category').value;
-        if (categoryValue) {
-            formData.append('category', categoryValue);
-        }
-        
         formData.append('price', document.getElementById('book-price').value);
         formData.append('publication_date', document.getElementById('book-publication-date').value);
         
+        // Optional basic fields
+        const categoryValue = document.getElementById('book-category').value;
+        if (categoryValue) formData.append('category', categoryValue);
+        
         const pageCount = document.getElementById('book-page-count').value;
-        if (pageCount) {
-            formData.append('page_count', pageCount);
-        }
+        if (pageCount) formData.append('page_count', pageCount);
+        
+        // Enhanced fields
+        const publisherValue = document.getElementById('book-publisher').value;
+        if (publisherValue) formData.append('publisher', publisherValue);
+        
+        const languageValue = document.getElementById('book-language').value;
+        if (languageValue) formData.append('language', languageValue);
+        
+        const seriesValue = document.getElementById('book-series').value;
+        if (seriesValue) formData.append('series', seriesValue);
+        
+        const seriesInfo = document.getElementById('book-series-info').value;
+        if (seriesInfo) formData.append('series_info', seriesInfo);
+        
+        const bookFormat = document.getElementById('book-format').value;
+        if (bookFormat) formData.append('book_format', bookFormat);
+        
+        const edition = document.getElementById('book-edition').value;
+        if (edition) formData.append('edition', edition);
+        
+        const firstPubDate = document.getElementById('book-first-publication-date').value;
+        if (firstPubDate) formData.append('first_publication_date', firstPubDate);
+        
+        const coverUrl = document.getElementById('book-cover-url').value;
+        if (coverUrl) formData.append('cover_image_url', coverUrl);
+        
+        const goodreadsId = document.getElementById('book-goodreads-id').value;
+        if (goodreadsId) formData.append('goodreads_id', goodreadsId);
+        
+        const averageRating = document.getElementById('book-average-rating').value;
+        if (averageRating) formData.append('average_rating', averageRating);
+        
+        const settings = document.getElementById('book-settings').value;
+        if (settings) formData.append('settings', settings);
+        
+        // Add selected genres
+        selectedGenres.forEach(genre => {
+            formData.append('genres', genre.id);
+        });
         
         // Add image file if selected
         const imageFile = document.getElementById('book-cover-image').files[0];
@@ -462,6 +763,68 @@
     function clearImageForm() {
         removeImage();
         document.getElementById('current-image').classList.add('hidden');
+    }
+
+    // Update pagination
+    function updatePagination(data) {
+        const pagination = document.getElementById('pagination');
+        
+        // Check if we have pagination data
+        if (!data.next && !data.previous && currentPage === 1) {
+            pagination.innerHTML = '';
+            return;
+        }
+        
+        let paginationHTML = '<nav class="flex justify-center items-center space-x-2">';
+        
+        // Previous button
+        if (data.previous) {
+            paginationHTML += `<button onclick="loadBooks(${currentPage - 1})" class="px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 text-sm">Previous</button>`;
+        } else {
+            paginationHTML += `<button disabled class="px-3 py-2 bg-gray-100 border border-gray-300 rounded-md text-gray-400 text-sm cursor-not-allowed">Previous</button>`;
+        }
+        
+        // Page numbers (show current page and a few around it)
+        const totalPages = Math.ceil(data.count / 20); // Assuming 20 items per page
+        const startPage = Math.max(1, currentPage - 2);
+        const endPage = Math.min(totalPages, currentPage + 2);
+        
+        if (startPage > 1) {
+            paginationHTML += `<button onclick="loadBooks(1)" class="px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 text-sm">1</button>`;
+            if (startPage > 2) {
+                paginationHTML += `<span class="px-2 text-gray-500">...</span>`;
+            }
+        }
+        
+        for (let i = startPage; i <= endPage; i++) {
+            if (i === currentPage) {
+                paginationHTML += `<button class="px-3 py-2 bg-primary-600 text-white border border-primary-600 rounded-md text-sm">${i}</button>`;
+            } else {
+                paginationHTML += `<button onclick="loadBooks(${i})" class="px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 text-sm">${i}</button>`;
+            }
+        }
+        
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                paginationHTML += `<span class="px-2 text-gray-500">...</span>`;
+            }
+            paginationHTML += `<button onclick="loadBooks(${totalPages})" class="px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 text-sm">${totalPages}</button>`;
+        }
+        
+        // Next button
+        if (data.next) {
+            paginationHTML += `<button onclick="loadBooks(${currentPage + 1})" class="px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 text-sm">Next</button>`;
+        } else {
+            paginationHTML += `<button disabled class="px-3 py-2 bg-gray-100 border border-gray-300 rounded-md text-gray-400 text-sm cursor-not-allowed">Next</button>`;
+        }
+        
+        // Show total count
+        if (data.count) {
+            paginationHTML += `<span class="ml-4 text-sm text-gray-600">Showing ${((currentPage - 1) * 20) + 1}-${Math.min(currentPage * 20, data.count)} of ${data.count} books</span>`;
+        }
+        
+        paginationHTML += '</nav>';
+        pagination.innerHTML = paginationHTML;
     }
 </script>
 {% endblock %}

@@ -6,7 +6,18 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 
-from .models import Category, Author, Book, Favorite, Genre, Character, Award, Publisher, Language, Series
+from .models import (
+    Category,
+    Author,
+    Book,
+    Favorite,
+    Genre,
+    Character,
+    Award,
+    Publisher,
+    Language,
+    Series,
+)
 from .serializers import (
     CategorySerializer,
     AuthorSerializer,
@@ -27,7 +38,7 @@ from .serializers import (
 
 class GenreViewSet(viewsets.ModelViewSet):
     """ViewSet for managing genres"""
-    
+
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = [AllowAny]
@@ -39,7 +50,7 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 class CharacterViewSet(viewsets.ModelViewSet):
     """ViewSet for managing characters"""
-    
+
     queryset = Character.objects.all()
     serializer_class = CharacterSerializer
     permission_classes = [AllowAny]
@@ -51,7 +62,7 @@ class CharacterViewSet(viewsets.ModelViewSet):
 
 class AwardViewSet(viewsets.ModelViewSet):
     """ViewSet for managing awards"""
-    
+
     queryset = Award.objects.all()
     serializer_class = AwardSerializer
     permission_classes = [AllowAny]
@@ -63,7 +74,7 @@ class AwardViewSet(viewsets.ModelViewSet):
 
 class PublisherViewSet(viewsets.ModelViewSet):
     """ViewSet for managing publishers"""
-    
+
     queryset = Publisher.objects.all()
     serializer_class = PublisherSerializer
     permission_classes = [AllowAny]
@@ -75,7 +86,7 @@ class PublisherViewSet(viewsets.ModelViewSet):
 
 class LanguageViewSet(viewsets.ModelViewSet):
     """ViewSet for managing languages"""
-    
+
     queryset = Language.objects.all()
     serializer_class = LanguageSerializer
     permission_classes = [AllowAny]
@@ -87,7 +98,7 @@ class LanguageViewSet(viewsets.ModelViewSet):
 
 class SeriesViewSet(viewsets.ModelViewSet):
     """ViewSet for managing series"""
-    
+
     queryset = Series.objects.all()
     serializer_class = SeriesSerializer
     permission_classes = [AllowAny]
@@ -124,9 +135,13 @@ class AuthorViewSet(viewsets.ModelViewSet):
 class BookViewSet(viewsets.ModelViewSet):
     """Enhanced ViewSet for managing books with rich data and pagination"""
 
-    queryset = Book.objects.select_related(
-        "author", "category", "publisher", "language", "series"
-    ).prefetch_related("genres", "characters", "awards").all()
+    queryset = (
+        Book.objects.select_related(
+            "author", "category", "publisher", "language", "series"
+        )
+        .prefetch_related("genres", "characters", "awards")
+        .all()
+    )
     permission_classes = [AllowAny]
     filter_backends = [
         DjangoFilterBackend,
@@ -134,13 +149,23 @@ class BookViewSet(viewsets.ModelViewSet):
         filters.OrderingFilter,
     ]
     filterset_fields = [
-        "category", "author", "publisher", "language", "series", 
-        "book_format", "publication_date", "average_rating"
+        "category",
+        "author",
+        "publisher",
+        "language",
+        "series",
+        "book_format",
+        "publication_date",
+        "average_rating",
     ]
     search_fields = ["title", "author__name", "description", "isbn"]
     ordering_fields = [
-        "title", "price", "publication_date", "created_at", 
-        "average_rating", "num_ratings"
+        "title",
+        "price",
+        "publication_date",
+        "created_at",
+        "average_rating",
+        "num_ratings",
     ]
     ordering = ["-created_at"]
 

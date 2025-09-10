@@ -2,6 +2,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.conf import settings
 from rest_framework import serializers
+from .models import User
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -37,7 +38,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = settings.AUTH_USER_MODEL
+        model = User
         fields = [
             "id",
             "username",
@@ -57,7 +58,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
     class Meta:
-        model = settings.AUTH_USER_MODEL
+        model = User
         fields = [
             "id",
             "username",
@@ -74,7 +75,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         read_only_fields = ["id"]
 
     def create(self, validated_data):
-        user = settings.AUTH_USER_MODEL.objects.create_user(
+        user = User.objects.create_user(
             username=validated_data["username"],
             email=validated_data["email"],
             first_name=validated_data.get("first_name", ""),
@@ -114,7 +115,7 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = settings.AUTH_USER_MODEL
+        model = User
         fields = [
             "first_name",
             "last_name",

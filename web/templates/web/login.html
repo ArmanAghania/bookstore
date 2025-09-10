@@ -106,7 +106,7 @@
             localStorage.setItem('refreshToken', response.refresh);
             localStorage.setItem('accessToken', response.access);
             
-            // Set access token as cookie for middleware
+            // Set access token as cookie for middleware (60 minutes = 3600 seconds)
             document.cookie = `access_token=${response.access}; path=/; max-age=3600; SameSite=Lax`;
             
             // Show success message

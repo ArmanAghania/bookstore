@@ -55,8 +55,11 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
                     user = User.objects.get(id=user_id)
                     request.user = user
                     request._dont_enforce_csrf_checks = True  # Skip CSRF for JWT auth
+                    return None  # Authentication successful, continue
                 except User.DoesNotExist:
-                    pass
+                    # User doesn't exist, redirect to login
+                    login_url = f"{reverse('web:login')}?next={request.path}"
+                    return HttpResponseRedirect(login_url)
 
         except (InvalidToken, TokenError, jwt.ExpiredSignatureError):
             # Token is invalid or expired, redirect to login

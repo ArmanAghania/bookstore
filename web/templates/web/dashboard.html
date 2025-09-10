@@ -159,22 +159,51 @@
 <script>
     // Load dashboard data
     document.addEventListener('DOMContentLoaded', function() {
+        // Ensure API instance is available
+        if (typeof api === 'undefined') {
+            console.error('API instance not available');
+            showError('API not initialized. Please refresh the page.');
+            return;
+        }
+        
         loadDashboardData();
         setupProfileModal();
     });
 
     async function loadDashboardData() {
         try {
-            // Load favorites count
-            const favorites = await api.getFavorites();
-            document.getElementById('favorites-count').textContent = favorites.length;
-
             // Load total books count
             const books = await api.getBooks();
             document.getElementById('total-books').textContent = books.count || books.length;
 
-            // Load recent favorites
-            loadRecentFavorites(favorites.slice(0, 5));
+            // Load favorites (with error handling)
+            try {
+                // Check if user is authenticated before trying to load favorites
+                const authToken = localStorage.getItem('accessToken');
+                if (!authToken) {
+                    console.log('User not authenticated, skipping favorites');
+                    document.getElementById('favorites-count').textContent = '0';
+                    loadRecentFavorites([]);
+                } else {
+                    const favorites = await api.getFavorites();
+                    // Handle both paginated and non-paginated responses
+                    const favoritesArray = favorites.results || favorites;
+                    
+                    if (Array.isArray(favoritesArray)) {
+                        document.getElementById('favorites-count').textContent = favoritesArray.length;
+                        loadRecentFavorites(favoritesArray.slice(0, 5));
+                    } else {
+                        // If favorites is not an array, set count to 0
+                        document.getElementById('favorites-count').textContent = '0';
+                        loadRecentFavorites([]);
+                    }
+                }
+            } catch (favoritesError) {
+                console.warn('Could not load favorites:', favoritesError);
+                // Set favorites count to 0 if API call fails
+                document.getElementById('favorites-count').textContent = '0';
+                loadRecentFavorites([]);
+            }
 
         } catch (error) {
             console.error('Error loading dashboard data:', error);
@@ -184,6 +213,11 @@
 
     function loadRecentFavorites(favorites) {
         const container = document.getElementById('recent-favorites');
+        
+        // Ensure favorites is always an array
+        if (!Array.isArray(favorites)) {
+            favorites = [];
+        }
         
         if (favorites.length === 0) {
             container.innerHTML = `
