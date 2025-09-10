@@ -234,11 +234,16 @@
             return;
         }
 
-        container.innerHTML = favorites.map(favorite => `
+        container.innerHTML = favorites.map(favorite => {
+            // Get cover image (uploaded or URL) - same logic as home page
+            const coverImage = favorite.book.cover_image_display || favorite.book.cover_image || favorite.book.cover_image_url;
+            
+            return `
             <div class="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                 <div class="flex-shrink-0">
-                    ${favorite.book.cover_image ? 
-                        `<img src="${favorite.book.cover_image}" alt="${favorite.book.title}" class="w-12 h-16 object-cover rounded">` :
+                    ${coverImage ? 
+                        `<img src="${coverImage}" alt="${favorite.book.title}" class="w-12 h-16 object-cover rounded" 
+                             onerror="this.onerror=null; this.parentNode.innerHTML='<div class=\\'w-12 h-16 bg-gray-200 rounded flex items-center justify-center\\'><i class=\\'fas fa-book text-gray-400\\'></i></div>'">` :
                         `<div class="w-12 h-16 bg-gray-200 rounded flex items-center justify-center">
                             <i class="fas fa-book text-gray-400"></i>
                         </div>`
@@ -255,7 +260,8 @@
                     </button>
                 </div>
             </div>
-        `).join('');
+        `;
+        }).join('');
     }
 
     async function removeFavorite(favoriteId) {

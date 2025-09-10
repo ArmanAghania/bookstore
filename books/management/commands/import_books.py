@@ -494,20 +494,53 @@ class Command(BaseCommand):
 
         try:
             # Parse genres array like "['Young Adult', 'Fiction', ...]"
-            genres_str = genres_str.strip("[]'\"")
+            genres_str = genres_str.strip()
+
+            # Handle different formats
+            if genres_str.startswith("[") and genres_str.endswith("]"):
+                # Remove brackets and parse as list
+                genres_str = genres_str[1:-1]
+
+            # Split by comma and clean each genre
+            genres_list = []
             if genres_str:
-                genres_list = [g.strip("'\"") for g in genres_str.split("',")]
-                for genre_name in genres_list[:5]:  # Limit to first 5 genres
-                    if genre_name:
-                        # Remove any remaining quotes and clean up
-                        genre_name = genre_name.strip("'\"")
-                        genre_name = genre_name.strip()[:50]
-                        if genre_name:  # Check again after cleaning
-                            genre, created = Genre.objects.get_or_create(
-                                name=genre_name
-                            )
-                            book.genres.add(genre)
-        except Exception:
+                # Split by comma, but be careful with commas inside quotes
+                import re
+
+                # Use regex to split by comma, but not inside quotes
+                parts = re.split(r",(?=(?:[^']*'[^']*')*[^']*$)", genres_str)
+
+                for part in parts:
+                    # Clean up each genre
+                    genre_name = part.strip()
+                    # Remove quotes from start and end
+                    if genre_name.startswith("'") and genre_name.endswith("'"):
+                        genre_name = genre_name[1:-1]
+                    elif genre_name.startswith('"') and genre_name.endswith('"'):
+                        genre_name = genre_name[1:-1]
+
+                    # Clean up any remaining quotes and whitespace
+                    genre_name = genre_name.strip("'\" \n\r\t")
+
+                    # Remove any colons that might be at the end
+                    if genre_name.endswith(":"):
+                        genre_name = genre_name[:-1].strip()
+
+                    # Only add if it's not empty and not just whitespace
+                    if genre_name and genre_name.strip():
+                        genres_list.append(genre_name.strip()[:50])
+
+            # Add genres to book (limit to first 5)
+            for genre_name in genres_list[:5]:
+                if genre_name:
+                    genre, created = Genre.objects.get_or_create(name=genre_name)
+                    book.genres.add(genre)
+
+        except Exception as e:
+            # Log the error for debugging
+            import logging
+
+            logging.error(f"Error parsing genres '{genres_str}': {e}")
             pass
 
     def add_characters_to_book(self, book, characters_str):

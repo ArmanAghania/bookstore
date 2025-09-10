@@ -37,7 +37,6 @@ from .serializers import (
 
 
 class GenreViewSet(viewsets.ModelViewSet):
-    """ViewSet for managing genres"""
 
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
@@ -49,7 +48,6 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 
 class CharacterViewSet(viewsets.ModelViewSet):
-    """ViewSet for managing characters"""
 
     queryset = Character.objects.all()
     serializer_class = CharacterSerializer
@@ -61,7 +59,6 @@ class CharacterViewSet(viewsets.ModelViewSet):
 
 
 class AwardViewSet(viewsets.ModelViewSet):
-    """ViewSet for managing awards"""
 
     queryset = Award.objects.all()
     serializer_class = AwardSerializer
@@ -73,7 +70,6 @@ class AwardViewSet(viewsets.ModelViewSet):
 
 
 class PublisherViewSet(viewsets.ModelViewSet):
-    """ViewSet for managing publishers"""
 
     queryset = Publisher.objects.all()
     serializer_class = PublisherSerializer
@@ -85,7 +81,6 @@ class PublisherViewSet(viewsets.ModelViewSet):
 
 
 class LanguageViewSet(viewsets.ModelViewSet):
-    """ViewSet for managing languages"""
 
     queryset = Language.objects.all()
     serializer_class = LanguageSerializer
@@ -97,7 +92,6 @@ class LanguageViewSet(viewsets.ModelViewSet):
 
 
 class SeriesViewSet(viewsets.ModelViewSet):
-    """ViewSet for managing series"""
 
     queryset = Series.objects.all()
     serializer_class = SeriesSerializer
@@ -109,7 +103,6 @@ class SeriesViewSet(viewsets.ModelViewSet):
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
-    """ViewSet for managing categories"""
 
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
@@ -119,9 +112,23 @@ class CategoryViewSet(viewsets.ModelViewSet):
     ordering_fields = ["name", "created_at"]
     ordering = ["name"]
 
+    @action(detail=False, methods=["get"], permission_classes=[AllowAny])
+    def search_all(self, request):
+        search_query = request.query_params.get("search", "")
+        queryset = self.get_queryset()
+
+        if search_query:
+            queryset = queryset.filter(
+                Q(name__icontains=search_query) | Q(description__icontains=search_query)
+            )
+
+        queryset = queryset.order_by("name")[:100]
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
 
 class AuthorViewSet(viewsets.ModelViewSet):
-    """ViewSet for managing authors"""
 
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
@@ -131,9 +138,23 @@ class AuthorViewSet(viewsets.ModelViewSet):
     ordering_fields = ["name", "created_at"]
     ordering = ["name"]
 
+    @action(detail=False, methods=["get"], permission_classes=[AllowAny])
+    def search_all(self, request):
+        search_query = request.query_params.get("search", "")
+        queryset = self.get_queryset()
+
+        if search_query:
+            queryset = queryset.filter(
+                Q(name__icontains=search_query) | Q(nationality__icontains=search_query)
+            )
+
+        queryset = queryset.order_by("name")[:100]
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
 
 class BookViewSet(viewsets.ModelViewSet):
-    """Enhanced ViewSet for managing books with rich data and pagination"""
 
     queryset = (
         Book.objects.select_related(
@@ -183,14 +204,12 @@ class BookViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["get"], permission_classes=[AllowAny])
     def search(self, request):
-        """Enhanced search and filter functionality with rich data support"""
         serializer = BookSearchSerializer(data=request.query_params)
         serializer.is_valid(raise_exception=True)
 
         queryset = self.get_queryset()
         data = serializer.validated_data
 
-        # Text search
         if data.get("search"):
             search_term = data["search"]
             queryset = queryset.filter(
@@ -202,7 +221,6 @@ class BookViewSet(viewsets.ModelViewSet):
                 | Q(publisher__name__icontains=search_term)
             )
 
-        # Enhanced filters
         if data.get("category"):
             queryset = queryset.filter(category_id=data["category"])
         if data.get("author"):
@@ -216,23 +234,19 @@ class BookViewSet(viewsets.ModelViewSet):
         if data.get("book_format"):
             queryset = queryset.filter(book_format=data["book_format"])
 
-        # Genre filter (many-to-many)
         if data.get("genres"):
             queryset = queryset.filter(genres__id__in=data["genres"]).distinct()
 
-        # Price range filter
         if data.get("min_price"):
             queryset = queryset.filter(price__gte=data["min_price"])
         if data.get("max_price"):
             queryset = queryset.filter(price__lte=data["max_price"])
 
-        # Rating range filter
         if data.get("min_rating"):
             queryset = queryset.filter(average_rating__gte=data["min_rating"])
         if data.get("max_rating"):
             queryset = queryset.filter(average_rating__lte=data["max_rating"])
 
-        # Publication date range filter
         if data.get("min_publication_date"):
             queryset = queryset.filter(
                 publication_date__gte=data["min_publication_date"]
@@ -242,24 +256,20 @@ class BookViewSet(viewsets.ModelViewSet):
                 publication_date__lte=data["max_publication_date"]
             )
 
-        # Cover image filter
         if data.get("has_cover_image"):
             queryset = queryset.filter(
                 Q(cover_image__isnull=False) | Q(cover_image_url__isnull=False)
             )
 
-        # Favorites only filter (requires authentication)
         if data.get("favorites_only") and request.user.is_authenticated:
             favorite_book_ids = Favorite.objects.filter(user=request.user).values_list(
                 "book_id", flat=True
             )
             queryset = queryset.filter(id__in=favorite_book_ids)
 
-        # Apply ordering
         if data.get("ordering"):
             queryset = queryset.order_by(data["ordering"])
 
-        # Paginate results
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = BookListSerializer(
@@ -274,7 +284,6 @@ class BookViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["post"], permission_classes=[IsAuthenticated])
     def bulk_delete(self, request):
-        """Bulk delete books with filters"""
         serializer = BulkDeleteSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -291,15 +300,13 @@ class BookViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["post"], permission_classes=[IsAuthenticated])
     def bulk_delete_filtered(self, request):
-        """Bulk delete books based on search filters"""
-        # First apply the same filters as search
+
         search_serializer = BookSearchSerializer(data=request.query_params)
         search_serializer.is_valid(raise_exception=True)
 
         queryset = self.get_queryset()
         data = search_serializer.validated_data
 
-        # Apply the same filters as in search method
         if data.get("search"):
             search_term = data["search"]
             queryset = queryset.filter(
@@ -334,7 +341,6 @@ class BookViewSet(viewsets.ModelViewSet):
             )
             queryset = queryset.filter(id__in=favorite_book_ids)
 
-        # Delete the filtered books
         deleted_count, _ = queryset.delete()
 
         return Response(
@@ -347,7 +353,6 @@ class BookViewSet(viewsets.ModelViewSet):
 
 
 class FavoriteViewSet(viewsets.ModelViewSet):
-    """ViewSet for managing user favorites"""
 
     serializer_class = FavoriteSerializer
     permission_classes = [IsAuthenticated]
@@ -362,7 +367,6 @@ class FavoriteViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["post"])
     def toggle(self, request):
-        """Toggle favorite status for a book"""
         book_id = request.data.get("book_id")
         if not book_id:
             return Response(

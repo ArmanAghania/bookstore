@@ -11,9 +11,7 @@ from .models import User
 from .serializers import UserSerializer, RegisterSerializer, UserUpdateSerializer
 
 
-# Create your views here.
 class CustomTokenObtainPairView(TokenObtainPairView):
-    """Custom login view that returns JWT tokens with user info"""
 
     serializer_class = CustomTokenObtainPairSerializer
 
@@ -22,9 +20,6 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 
 class LogoutView(generics.GenericAPIView):
-    """
-    Logout view to blacklist the refresh token
-    """
 
     permission_classes = (IsAuthenticated,)
 
@@ -58,12 +53,10 @@ class UserViewset(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["get", "post", "put", "patch"])
     def me(self, request):
-        """Custom action to get/update current user without requiring pk"""
         if request.method == "GET":
             serializer = self.get_serializer(request.user)
             return Response(serializer.data)
         elif request.method == "POST":
-            # Handle user creation (registration)
             serializer = RegisterSerializer(data=request.data)
             if serializer.is_valid():
                 user = serializer.save()
@@ -72,7 +65,6 @@ class UserViewset(viewsets.ModelViewSet):
                 )
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         elif request.method in ["PUT", "PATCH"]:
-            # Handle user update
             serializer = UserSerializer(
                 request.user, data=request.data, partial=request.method == "PATCH"
             )

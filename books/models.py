@@ -4,17 +4,15 @@ from django.conf import settings
 
 
 class Language(models.Model):
-    """Model for book languages"""
 
-    code = models.CharField(max_length=10, unique=True)  # e.g., 'en', 'es', 'fr'
-    name = models.CharField(max_length=50, unique=True)  # e.g., 'English', 'Spanish'
+    code = models.CharField(max_length=10, unique=True)
+    name = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
         return self.name
 
 
 class Publisher(models.Model):
-    """Model for book publishers"""
 
     name = models.CharField(max_length=200, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -24,7 +22,6 @@ class Publisher(models.Model):
 
 
 class Genre(models.Model):
-    """Model for book genres"""
 
     name = models.CharField(max_length=50, unique=True)
     description = models.TextField(blank=True, null=True)
@@ -34,7 +31,6 @@ class Genre(models.Model):
 
 
 class Character(models.Model):
-    """Model for book characters"""
 
     name = models.CharField(max_length=200)
 
@@ -43,9 +39,8 @@ class Character(models.Model):
 
 
 class Award(models.Model):
-    """Model for literary awards"""
 
-    name = models.CharField(max_length=500)  # Some award names are very long
+    name = models.CharField(max_length=500)
     year = models.PositiveIntegerField(blank=True, null=True)
 
     class Meta:
@@ -56,7 +51,6 @@ class Award(models.Model):
 
 
 class Series(models.Model):
-    """Model for book series"""
 
     name = models.CharField(max_length=200, unique=True)
 
@@ -68,7 +62,6 @@ class Series(models.Model):
 
 
 class Category(models.Model):
-    """Model for book categories"""
 
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True, null=True)
@@ -83,7 +76,6 @@ class Category(models.Model):
 
 
 class Author(models.Model):
-    """Model for book authors"""
 
     name = models.CharField(max_length=200)
     bio = models.TextField(blank=True, null=True)
@@ -97,17 +89,13 @@ class Author(models.Model):
 
 
 class Book(models.Model):
-    """Enhanced model for books"""
 
-    # Basic Information
-    title = models.CharField(max_length=500)  # Increased from 300
+    title = models.CharField(max_length=500)
     isbn = models.CharField(max_length=13, unique=True, help_text="13-character ISBN")
     description = models.TextField(blank=True, null=True)
 
-    # External IDs
     goodreads_id = models.CharField(max_length=100, blank=True, null=True)
 
-    # Relationships
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="books")
     category = models.ForeignKey(
         Category, on_delete=models.SET_NULL, null=True, blank=True, related_name="books"
@@ -129,10 +117,8 @@ class Book(models.Model):
         Series, on_delete=models.SET_NULL, null=True, blank=True, related_name="books"
     )
 
-    # Physical Properties
     page_count = models.PositiveIntegerField(blank=True, null=True)
 
-    # Format choices
     FORMAT_CHOICES = [
         ("hardcover", "Hardcover"),
         ("paperback", "Paperback"),
@@ -147,16 +133,13 @@ class Book(models.Model):
     )
     edition = models.CharField(max_length=100, blank=True, null=True)
 
-    # Dates
     publication_date = models.DateField()
     first_publication_date = models.DateField(blank=True, null=True)
 
-    # Pricing
     price = models.DecimalField(
         max_digits=10, decimal_places=2, validators=[MinValueValidator(0.01)]
     )
 
-    # Ratings and Reviews
     average_rating = models.DecimalField(
         max_digits=3,
         decimal_places=2,
@@ -169,32 +152,24 @@ class Book(models.Model):
         blank=True, null=True, validators=[MinValueValidator(0), MaxValueValidator(100)]
     )
 
-    # Rating breakdown (from ratingsByStars field)
     ratings_5_star = models.PositiveIntegerField(default=0)
     ratings_4_star = models.PositiveIntegerField(default=0)
     ratings_3_star = models.PositiveIntegerField(default=0)
     ratings_2_star = models.PositiveIntegerField(default=0)
     ratings_1_star = models.PositiveIntegerField(default=0)
 
-    # Best Books Ever specific scores
     bbe_score = models.PositiveIntegerField(blank=True, null=True)
     bbe_votes = models.PositiveIntegerField(blank=True, null=True)
 
-    # Series Information
-    series_info = models.CharField(
-        max_length=100, blank=True, null=True
-    )  # e.g., "Harry Potter #5"
+    series_info = models.CharField(max_length=100, blank=True, null=True)
 
-    # Images
     cover_image = models.ImageField(upload_to="book_covers/", blank=True, null=True)
     cover_image_url = models.URLField(max_length=500, blank=True, null=True)
 
-    # Settings/Locations (stored as comma-separated values for simplicity)
     settings = models.TextField(
         blank=True, null=True, help_text="Story settings/locations"
     )
 
-    # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -215,7 +190,6 @@ class Book(models.Model):
 
     @property
     def series_display(self):
-        """Return formatted series information"""
         if self.series and self.series_info:
             return f"{self.series.name} - {self.series_info}"
         elif self.series:
@@ -226,7 +200,6 @@ class Book(models.Model):
 
     @property
     def rating_distribution(self):
-        """Return rating distribution as percentages"""
         total = (
             self.ratings_5_star
             + self.ratings_4_star
@@ -246,7 +219,6 @@ class Book(models.Model):
 
 
 class Favorite(models.Model):
-    """Model for user's favorite books"""
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="favorites"

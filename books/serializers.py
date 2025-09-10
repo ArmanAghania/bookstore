@@ -108,7 +108,6 @@ class AuthorSerializer(serializers.ModelSerializer):
 
 
 class BookListSerializer(serializers.ModelSerializer):
-    """Serializer for book list view with enhanced information"""
 
     author_name = serializers.CharField(source="author.name", read_only=True)
     category_name = serializers.CharField(source="category.name", read_only=True)
@@ -155,7 +154,6 @@ class BookListSerializer(serializers.ModelSerializer):
         return False
 
     def get_cover_image_display(self, obj):
-        """Return cover image URL (either uploaded or external URL)"""
         if obj.cover_image:
             request = self.context.get("request")
             if request:
@@ -163,18 +161,15 @@ class BookListSerializer(serializers.ModelSerializer):
         return obj.cover_image_url
 
     def get_rating_display(self, obj):
-        """Return formatted rating display"""
         if obj.average_rating:
             return f"{obj.average_rating}/5.0 ({obj.num_ratings:,} ratings)"
         return "No ratings yet"
 
     def get_genres_display(self, obj):
-        """Return first 3 genres for display"""
         return [genre.name for genre in obj.genres.all()[:3]]
 
 
 class BookDetailSerializer(serializers.ModelSerializer):
-    """Serializer for book detail view with complete information"""
 
     author = AuthorSerializer(read_only=True)
     category = CategorySerializer(read_only=True)
@@ -243,7 +238,6 @@ class BookDetailSerializer(serializers.ModelSerializer):
         return False
 
     def get_cover_image_display(self, obj):
-        """Return cover image URL (either uploaded or external URL)"""
         if obj.cover_image:
             request = self.context.get("request")
             if request:
@@ -251,14 +245,12 @@ class BookDetailSerializer(serializers.ModelSerializer):
         return obj.cover_image_url
 
     def get_settings_list(self, obj):
-        """Return settings as a list"""
         if obj.settings:
             return [s.strip() for s in obj.settings.split(",") if s.strip()]
         return []
 
 
 class BookCreateUpdateSerializer(serializers.ModelSerializer):
-    """Serializer for creating and updating books with enhanced fields"""
 
     genres = serializers.PrimaryKeyRelatedField(
         many=True, queryset=Genre.objects.all(), required=False
@@ -303,7 +295,6 @@ class BookCreateUpdateSerializer(serializers.ModelSerializer):
         ]
 
     def validate_isbn(self, value):
-        """Validate ISBN format"""
         if len(value) != 13:
             raise serializers.ValidationError(
                 "ISBN must be exactly 13 characters long."
@@ -314,7 +305,6 @@ class BookCreateUpdateSerializer(serializers.ModelSerializer):
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
-    """Serializer for user favorites"""
 
     book = BookListSerializer(read_only=True)
     book_id = serializers.IntegerField(write_only=True)
@@ -328,13 +318,11 @@ class FavoriteSerializer(serializers.ModelSerializer):
         user = self.context["request"].user
         book_id = validated_data.pop("book_id")
 
-        # Check if book exists
         try:
             book = Book.objects.get(id=book_id)
         except Book.DoesNotExist:
             raise serializers.ValidationError("Book not found.")
 
-        # Check if already favorited
         if Favorite.objects.filter(user=user, book=book).exists():
             raise serializers.ValidationError("Book is already in favorites.")
 
@@ -342,7 +330,6 @@ class FavoriteSerializer(serializers.ModelSerializer):
 
 
 class BookSearchSerializer(serializers.Serializer):
-    """Enhanced serializer for book search parameters"""
 
     search = serializers.CharField(
         required=False, help_text="Search in title, author name, or description"
@@ -419,7 +406,6 @@ class BookSearchSerializer(serializers.Serializer):
 
 
 class BulkDeleteSerializer(serializers.Serializer):
-    """Serializer for bulk delete operations"""
 
     book_ids = serializers.ListField(
         child=serializers.IntegerField(), help_text="List of book IDs to delete"

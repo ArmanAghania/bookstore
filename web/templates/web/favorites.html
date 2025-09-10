@@ -30,7 +30,9 @@
 
     async function loadFavorites() {
         try {
-            const favorites = await api.getFavorites();
+            const response = await api.getFavorites();
+            // Extract the results array from the paginated response
+            const favorites = response.results || response;
             displayFavorites(favorites);
         } catch (error) {
             console.error('Error loading favorites:', error);
@@ -40,6 +42,11 @@
 
     function displayFavorites(favorites) {
         const container = document.getElementById('favorites-container');
+        
+        // Ensure favorites is always an array
+        if (!Array.isArray(favorites)) {
+            favorites = [];
+        }
         
         if (favorites.length === 0) {
             container.innerHTML = `
@@ -65,12 +72,16 @@
 
     function createFavoriteCard(favorite) {
         const book = favorite.book;
+        // Get cover image (uploaded or URL) - same logic as home page
+        const coverImage = book.cover_image_display || book.cover_image || book.cover_image_url;
+        
         return `
             <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
                 <div class="p-6">
                     <div class="aspect-w-3 aspect-h-4 mb-4">
-                        ${book.cover_image ? 
-                            `<img src="${book.cover_image}" alt="${book.title}" class="w-full h-48 object-cover rounded-md">` :
+                        ${coverImage ? 
+                            `<img src="${coverImage}" alt="${book.title}" class="w-full h-48 object-cover rounded-md" 
+                                 onerror="this.onerror=null; this.parentNode.innerHTML='<div class=\\'w-full h-48 bg-gray-200 rounded-md flex items-center justify-center\\'><i class=\\'fas fa-book text-4xl text-gray-400\\'></i></div>'">` :
                             `<div class="w-full h-48 bg-gray-200 rounded-md flex items-center justify-center">
                                 <i class="fas fa-book text-4xl text-gray-400"></i>
                             </div>`
@@ -140,8 +151,9 @@
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                ${book.cover_image ? 
-                                    `<img src="${book.cover_image}" alt="${book.title}" class="w-full rounded-md">` :
+                                ${book.cover_image_display || book.cover_image || book.cover_image_url ? 
+                                    `<img src="${book.cover_image_display || book.cover_image || book.cover_image_url}" alt="${book.title}" class="w-full rounded-md" 
+                                         onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDIwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMDAgMTIwSDgwVjE4MEgxMjBWMTIwSDEwMFoiIGZpbGw9IiM5Q0EzQUYiLz4KPHBhdGggZD0iTTgwIDEyMEgxMjBWMTQwSDgwVjEyMFoiIGZpbGw9IiM2QjcyODAiLz4KPC9zdmc+'; this.alt='No cover available';">` :
                                     `<div class="w-full h-64 bg-gray-200 rounded-md flex items-center justify-center">
                                         <i class="fas fa-book text-6xl text-gray-400"></i>
                                     </div>`
