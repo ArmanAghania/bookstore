@@ -47,7 +47,7 @@ See [Development Setup Guide](docs/development.md) for detailed instructions.
 - **[Features Overview](docs/features.md)** - Detailed feature descriptions
 - **[Database Schema](docs/database.md)** - Database structure and relationships
 - **[ER Diagram](docs/er-diagram.md)** - Visual database relationship diagram
-- **[Visual ER Diagram](mermaid-diagram.png)** - High-resolution database schema image
+- **[Visual ER Diagram](docs/mermaid-diagram.png)** - High-resolution database schema image
 
 ## 🏗️ Architecture
 
